@@ -28,7 +28,7 @@ function normalizeText(t: string) {
     let a = t.toLocaleLowerCase()
     a = a.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
     a.replaceAll('-', ' ')
-    while (a.includes('  ')) a.replaceAll('  ', ' ')
+    a.replaceAll('  ', ' ')
 
     return a.trim()
 }

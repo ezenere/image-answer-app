@@ -8,7 +8,6 @@ services:
       MINIO_ROOT_PASSWORD: DEFAULT123456789
     command: server /data
     ports:
-      - "9000:9000"
       - "9001:9001"
     volumes:
       - ./minio/minio_data:/data
@@ -19,8 +18,6 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: "123456789"
-    ports:
-      - "3306:3306"
     volumes:
       - ./mysql/mysql_data:/var/lib/mysql
       - ./mysql/scripts:/docker-entrypoint-initdb.d
