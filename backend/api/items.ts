@@ -2,9 +2,8 @@
 
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { mysqlConn } from "../database/mysql"
-// import { minioClient } from "../storage/minio";
+import { minioClient } from "../storage/minio";
 import { toSHA256 } from "@/commons/crypto";
-import { put } from "@vercel/blob";
 
 export interface Item { id: number; identifier: string }
 export interface FullItem { id: number; identifier: string; answers: Array<{id: number; text: string}> }
@@ -75,22 +74,21 @@ export async function removeAnswer(id: number) {
 export async function newImageFile(collection: number, buffer: ArrayBuffer) {
     const bucket = 'collection'+collection;
 
-    // const minio = await minioClient()
+    const minio = await minioClient()
 
-    // if(!await minio.bucketExists(bucket)) await minio.makeBucket(bucket)
+    if(!await minio.bucketExists(bucket)) await minio.makeBucket(bucket)
 
     const key = toSHA256('image'+Date.now()+'-'+Math.random()+'-'+Math.random()+'-'+Math.random())
 
     try {
-        // await new Promise((resolve, reject) => {
-        //     minio.putObject(bucket, key, Buffer.from(buffer), buffer.byteLength, function (err: unknown, objInfo: unknown) {
-        //         if (err) {
-        //             return reject(err)
-        //         }
-        //         resolve(objInfo)
-        //     })
-        // })
-        await put(`${bucket}/${key}`, buffer, { access: 'public' });
+        await new Promise((resolve, reject) => {
+            minio.putObject(bucket, key, Buffer.from(buffer), buffer.byteLength, function (err: unknown, objInfo: unknown) {
+                if (err) {
+                    return reject(err)
+                }
+                resolve(objInfo)
+            })
+        })
 
         const conn = await mysqlConn()
 

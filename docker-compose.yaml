@@ -1,0 +1,41 @@
+services:
+  minio:
+    image: minio/minio:latest
+    container_name: minio_storage
+    restart: always
+    environment:
+      MINIO_ROOT_USER: DEFAULT
+      MINIO_ROOT_PASSWORD: DEFAULT123456789
+    command: server /data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./minio/minio_data:/data
+  
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_database
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456789"
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql/mysql_data:/var/lib/mysql
+      - ./mysql/scripts:/docker-entrypoint-initdb.d
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: anatomy_app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - minio
+      - mysql
+
+volumes:
+  minio_data:
+  db_data:
