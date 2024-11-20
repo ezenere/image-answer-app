@@ -33,7 +33,7 @@ function normalizeText(t: string) {
     return a.trim()
 }
 export async function checkAnswer(collection: number, id: number, text: string) {
-    const conn = await (await mysqlConn()).getConnection()
+    const conn = await mysqlConn()
 
     const [result] = await conn.query<RowDataPacket[]>("SELECT AnswerId id, AnswerText text FROM Anatomy.Answers WHERE AnswerImage = ? AND AnswerCollection = ?;", [id, collection]);
 
