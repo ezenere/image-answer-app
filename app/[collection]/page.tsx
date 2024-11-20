@@ -1,15 +1,14 @@
 "use client"
 
-import { checkAnswer, Items } from "@/backend/api/items"
+import { checkAnswerBase as checkAnswer, ItemsBase as Items } from "@/backend/api/items"
 import Image from "next/image";
 import { useParams } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
 
-interface Item {
-    id: number;
-    identifier: string;
-    count?: boolean;
-}
+//import {CollectionImages} from "@prisma/client"
+
+type Item = { id: number; identifier: string, count?: boolean }
+
 
 export default function Test() {
     const { collection } = useParams()
@@ -49,6 +48,8 @@ export default function Test() {
         Items(parseInt(collection as string)).then((r) => next(r, true))
     }, [collection])
 
+    console.log(currentItem)
+
     const correct = useCallback((text: string) => {
         setLoading(true)
 
@@ -75,7 +76,7 @@ export default function Test() {
             <div className="flex-1"><b>Tempo</b>: <Time updateFinalTime={updateFinalTime} /></div>
         </div>
         <div className="flex justify-center">
-            <Image src={`/api/images/${collection}/${currentItem.identifier}`} alt="Item image" width={800} height={800}/>
+            <Image src={`${currentItem.identifier}`} alt="Item image" width={800} height={800}/>
         </div>
         <div className={`mt-3 mb-3 font-medium text-center ${success ? 'text-green-700' : 'text-red-700'}`}>{message}</div>
         <div className="flex gap-4">

@@ -6,7 +6,10 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: '5mb'
     }
-  }
+  },
+  images: {
+    domains: ['upload.wikimedia.org'],
+  },
 };
 
 export default nextConfig;

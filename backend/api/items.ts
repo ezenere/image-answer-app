@@ -4,6 +4,7 @@ import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { mysqlConn } from "../database/mysql"
 import { minioClient } from "../storage/minio";
 import { toSHA256 } from "@/commons/crypto";
+import { PrismaClient } from "@prisma/client";
 
 export interface Item { id: number; identifier: string }
 export interface FullItem { id: number; identifier: string; answers: Array<{id: number; text: string}> }
@@ -15,6 +16,14 @@ export async function Items(collectionId: number): Promise<Item[]> {
 
     return result as Item[]
 }
+
+export async function ItemsBase(collectionId: number) {
+    const prisma = new PrismaClient()
+    const items = await prisma.collectionImages.findMany({ where: { ImageCollection: collectionId } })
+    await prisma.$disconnect()
+    return items.map((i) => ({ id: i.ImageId, identifier: i.ImageIdentifier }))
+}
+
 
 export async function FullItems(collectionId: number): Promise<FullItem[]> {
     const conn = await mysqlConn()
@@ -46,6 +55,19 @@ export async function checkAnswer(collection: number, id: number, text: string) 
 
     return { success, answer: result[0].text };
 }
+
+export const checkAnswerBase = async (collection: number, id: number, text: string) => {
+    const prisma = new PrismaClient() 
+    const answers = await prisma.answers.findMany({ where: { AnswerImage: id } })
+    await prisma.$disconnect()
+    const normalized = normalizeText(text)
+    let success = false
+    answers.forEach((answer) => {
+        if (normalizeText(answer.AnswerText) === normalized) success = true
+    })
+    return { success, answer: answers[0].AnswerText }
+} 
+
 
 export async function addAnswer(coll: number, id: number, text: string) {
     const conn = await mysqlConn()

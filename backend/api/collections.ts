@@ -2,6 +2,7 @@
 
 import { ResultSetHeader, RowDataPacket } from "mysql2"
 import { mysqlConn } from "../database/mysql"
+import { PrismaClient } from "@prisma/client";
 
 export interface Collection { id: number; name: string; description: string; quantity: number; answers: number }
 
@@ -12,6 +13,15 @@ export async function Collections(): Promise<Collection[]> {
 
     return result as Collection[];
 }
+
+export async function CollectionsBase() {
+  const prisma = new PrismaClient()
+    const collections = await prisma.collections.findMany()
+    await prisma.$disconnect()
+    return collections 
+
+}
+
 
 export async function newCollection(name: string, description: string) {
     const conn = await mysqlConn()
