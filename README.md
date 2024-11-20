@@ -8,4 +8,6 @@ Upload some images and give them an answer
 
 Go back to `/`
 
+teste
+
 Select your collection and happy learning!
