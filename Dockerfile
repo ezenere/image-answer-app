@@ -39,6 +39,9 @@ RUN adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app ./
 
+RUN mkdir -p ./.next/cache/images
+RUN chmod 0777 ./.next/cache/images
+
 USER nextjs
 
 EXPOSE 3000
