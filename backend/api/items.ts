@@ -29,6 +29,10 @@ function normalizeText(t: string) {
     a = a.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
     a.replaceAll('-', ' ')
     a.replaceAll('  ', ' ')
+    a.replaceAll('a. ', 'a ')
+    a.replaceAll('m. ', 'm ')
+    a.replaceAll('v. ', 'v ')
+    a.replaceAll('n. ', 'n ')
 
     return a.trim()
 }
