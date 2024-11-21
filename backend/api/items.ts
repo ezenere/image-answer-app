@@ -11,7 +11,7 @@ export interface FullItem { id: number; identifier: string; answers: Array<{id: 
 export async function Items(collectionId: number): Promise<Item[]> {
     const conn = await mysqlConn()
 
-    const [result] = await conn.query('SELECT ImageId id, ImageIdentifier identifier FROM Anatomy.CollectionImages WHERE ImageCollection = ? AND ImageAnswers > 0;', [collectionId])
+    const [result] = await conn.query('SELECT ImageId id, ImageIdentifier identifier FROM Anatomy.CollectionImages WHERE ImageCollection = ? AND ImageAnswers > 0 ORDER BY ImageId DESC;', [collectionId])
 
     return result as Item[]
 }
