@@ -11,7 +11,7 @@ export interface FullItem { id: number; identifier: string; answers: Array<{id: 
 export async function Items(collectionId: number): Promise<Item[]> {
     const conn = await mysqlConn()
 
-    const [result] = await conn.query('SELECT ImageId id, ImageIdentifier identifier FROM Anatomy.CollectionImages WHERE ImageCollection = ? AND ImageAnswers > 0 ORDER BY ImageId DESC;', [collectionId])
+    const [result] = await conn.query('SELECT ImageId id, ImageIdentifier identifier FROM Anatomy.CollectionImages WHERE ImageCollection = ? AND ImageAnswers > 0;', [collectionId])
 
     return result as Item[]
 }
@@ -19,7 +19,7 @@ export async function Items(collectionId: number): Promise<Item[]> {
 export async function FullItems(collectionId: number): Promise<FullItem[]> {
     const conn = await mysqlConn()
 
-    const [result] = await conn.query<RowDataPacket[]>(`SELECT ImageId id, ImageIdentifier identifier, (SELECT json_arrayagg(json_object('id', AnswerId, 'text', AnswerText)) FROM Anatomy.Answers WHERE AnswerImage = ImageId) answers FROM Anatomy.CollectionImages WHERE ImageCollection = ?;`, [collectionId]);
+    const [result] = await conn.query<RowDataPacket[]>(`SELECT ImageId id, ImageIdentifier identifier, (SELECT json_arrayagg(json_object('id', AnswerId, 'text', AnswerText)) FROM Anatomy.Answers WHERE AnswerImage = ImageId) answers FROM Anatomy.CollectionImages WHERE ImageCollection = ? ORDER BY ImageId DESC;`, [collectionId]);
 
     return result as FullItem[]
 }
