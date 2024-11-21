@@ -2,7 +2,6 @@
 
 import { FullItems, FullItem, removeAnswer, addAnswer, newImageFile } from "@/backend/api/items";
 import { useLoad } from "@/commons/load";
-import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 
@@ -30,7 +29,7 @@ export default function Admin() {
                             : data?.map((i, idx) => <tr key={i.id} className={`text-sm ${idx % 2 === 0 ? 'bg-transparent' : 'bg-slate-200'}`}>
                                 <td className="p-1 pl-2 pr-2 text-center border border-slate-300">{i.id}</td>
                                 <td className="p-1 pl-2 pr-2 border border-slate-300">
-                                    <Image src={`/api/images/${collection}/${i.identifier}`} alt="Item image" width={800} height={800}/>
+                                    <img src={`/api/images/${collection}/${i.identifier}`} alt="Item image" />
                                 </td>
                                 <td className="p-1 pl-2 pr-2 border border-slate-300">
                                     <Answers item={i} collection={collection as string} />

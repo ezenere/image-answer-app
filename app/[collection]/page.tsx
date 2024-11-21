@@ -1,7 +1,6 @@
 "use client"
 
 import { checkAnswer, Items } from "@/backend/api/items"
-import Image from "next/image";
 import { useParams } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
 
@@ -75,7 +74,7 @@ export default function Test() {
             <div className="flex-1"><b>Tempo</b>: <Time updateFinalTime={updateFinalTime} /></div>
         </div>
         <div className="flex justify-center">
-            <Image src={`/api/images/${collection}/${currentItem.identifier}`} alt="Item image" width={800} height={800}/>
+            <img src={`/api/images/${collection}/${currentItem.identifier}`} alt="Item image" />
         </div>
         <div className={`mt-3 mb-3 font-medium text-center ${success ? 'text-green-700' : 'text-red-700'}`}>{message}</div>
         <div className="flex gap-4">

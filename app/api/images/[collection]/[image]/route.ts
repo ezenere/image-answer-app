@@ -20,7 +20,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ coll
         status: 200,
         headers: {
             'Content-Type': 'image/jpeg',
-            'Content-Disposition': 'inline; filename="image.jpg"'
+            'Content-Disposition': 'inline; filename="image.jpg"',
+            'Cache-Control': 'public, max-age=31536000', // Cache for one year
+            'Expires': new Date(Date.now() + 31536000000).toUTCString(), // Optional: Set an explicit expiration date
+            'Last-Modified': new Date().toUTCString(), // Optional: Set the last modification time
         }
     });
 }
