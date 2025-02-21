@@ -25,16 +25,16 @@ services:
       - ./mysql/mysql_data:/var/lib/mysql
       - ./mysql/scripts:/docker-entrypoint-initdb.d
 
-  # app:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   container_name: anatomy_app
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - minio
-  #     - mysql
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: anatomy_app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - minio
+      - mysql
 
 volumes:
   minio_data:
