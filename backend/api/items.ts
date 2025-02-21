@@ -4,6 +4,7 @@ import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { mysqlConn } from "../database/mysql"
 import { minioClient } from "../storage/minio";
 import { toSHA256 } from "@/commons/crypto";
+import sharp, { FormatEnum } from "sharp";
 
 export interface Item { id: number; identifier: string; question: string }
 export interface FullItem { id: number; identifier: string; question: string; answers: Array<{id: number; text: string}> }
@@ -75,6 +76,27 @@ export async function removeAnswer(id: number) {
     } 
 }
 
+async function convertImageBuffer(inputBuffer: Buffer, format: keyof FormatEnum = 'webp') {
+    try {
+        if (!['jpg', 'jpeg', 'webp'].includes(format)) {
+            throw new Error("Invalid format. Use 'jpg' or 'webp'.");
+        }
+
+        const outputBuffer = await sharp(inputBuffer)
+            .resize({ width: 1000, height: 1000, fit: 'inside' })
+            .toFormat(format, {
+                quality: format === 'webp' ? 65 : 70,
+                progressive: true,
+            })
+            .toBuffer();
+
+        return outputBuffer;
+    } catch (error) {
+        console.error('Error processing image:', error);
+        throw error;
+    }
+}
+
 export async function newImageFile(collection: number, buffer: ArrayBuffer, question: string) {
     const bucket = 'collection'+collection;
 
@@ -85,11 +107,11 @@ export async function newImageFile(collection: number, buffer: ArrayBuffer, ques
     const key = toSHA256('image'+Date.now()+'-'+Math.random()+'-'+Math.random()+'-'+Math.random())
 
     try {
+        const finalBuffer = await convertImageBuffer(Buffer.from(buffer))
+
         await new Promise((resolve, reject) => {
-            minio.putObject(bucket, key, Buffer.from(buffer), buffer.byteLength, function (err: unknown, objInfo: unknown) {
-                if (err) {
-                    return reject(err)
-                }
+            minio.putObject(bucket, key, finalBuffer, finalBuffer.byteLength, function (err: unknown, objInfo: unknown) {
+                if (err) return reject(err)
                 resolve(objInfo)
             })
         })

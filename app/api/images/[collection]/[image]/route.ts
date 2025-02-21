@@ -19,8 +19,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ coll
     return new Response(dataStream, {
         status: 200,
         headers: {
-            'Content-Type': 'image/jpeg',
-            'Content-Disposition': 'inline; filename="image.jpg"',
+            'Content-Type': 'image/webp',
+            'Content-Disposition': 'inline; filename="image.webp"',
             'Cache-Control': 'public, max-age=31536000', // Cache for one year
             'Expires': new Date(Date.now() + 31536000000).toUTCString(), // Optional: Set an explicit expiration date
             'Last-Modified': new Date().toUTCString(), // Optional: Set the last modification time
