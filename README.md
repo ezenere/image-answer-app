@@ -6,7 +6,7 @@ When opening the website, you will notice it will be blank, so go to `http://loc
 
 Create a new collection
 
-Upload some images, if you want, add a question and give them one or more answers.
+Upload some images add questions and give them one or more answers.
 
 Go back to `http://localhost:3000/`
 
