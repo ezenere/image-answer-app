@@ -1,6 +1,6 @@
 "use client"
 
-import { FullItems, FullItem, removeAnswer, addAnswer, newImageFile } from "@/backend/api/items";
+import { FullItems, FullItem, removeAnswer, addAnswer, newImageFile, updateQuestion } from "@/backend/api/items";
 import { useLoad } from "@/commons/load";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -29,6 +29,8 @@ export default function Admin() {
                             : data?.map((i, idx) => <tr key={i.id} className={`text-sm ${idx % 2 === 0 ? 'bg-transparent' : 'bg-slate-200'}`}>
                                 <td className="p-1 pl-2 pr-2 text-center border border-slate-300">{i.id}</td>
                                 <td className="p-1 pl-2 pr-2 border border-slate-300">
+                                    <Question collection={parseInt(collection as string)} item={i}  />
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src={`/api/images/${collection}/${i.identifier}`} alt="Item image" />
                                 </td>
                                 <td className="p-1 pl-2 pr-2 border border-slate-300">
@@ -45,6 +47,24 @@ export default function Admin() {
         </div>
         <NewImage open={opened} close={() => setOpened(false)} reload={() => reload()} collection={parseInt(collection as string)}/>
     </>
+}
+
+function Question({collection, item}: {collection: number; item: FullItem;}) {
+    const [question, setQuestion] = useState(item.question);
+
+    return (
+        <div className="mb-2">
+            <input className="w-full p-1.5 text-sm rounded-md bg-slate-100 border border-slate-200" placeholder="Digite uma pergunta para a imagem" value={question} onChange={(e) => setQuestion(e.currentTarget.value)} onBlur={async () => {
+                const r = await updateQuestion(collection, item.id, question)
+
+                if (!r.success) {
+                    setQuestion(item.question);
+                } else {
+                    item.question = question;
+                }
+            }}/>
+        </div>
+    )
 }
 
 function Answers({item, collection}: {item: FullItem, collection: string}) {
@@ -86,7 +106,7 @@ function Answers({item, collection}: {item: FullItem, collection: string}) {
             </div>
         })}
         <div className="flex gap-3">
-            <div className="flex-1"><input className="w-full p-2" placeholder="Digite aqui uma resposta" value={newValue} onKeyDown={(e) => {if(e.key.includes('Enter')) addValue()}} onInput={(e) => setNewValue(e.currentTarget.value)} /></div>
+            <div className="flex-1"><input className="w-full p-2 text-sm rounded-md bg-slate-100 border border-slate-200" placeholder="Digite aqui uma resposta" value={newValue} onKeyDown={(e) => {if(e.key.includes('Enter')) addValue()}} onInput={(e) => setNewValue(e.currentTarget.value)} /></div>
             <div className="flex-initial text-white rounded-md bg-green-800 p-1 pl-4 pr-4 cursor-pointer flex items-center" onClick={() => addValue()}><span>Salvar</span></div>
         </div>
     </div>
@@ -98,11 +118,21 @@ function NewImage({open, reload, close, collection}: {open: boolean; reload: () 
 
     const [value, setValue] = useState('')
     const [file, setFile] = useState<null | FileList>(null)
+    const [question, setQuestion] = useState('');
     
     return <div className={`fixed flex flex-col justify-center items-center w-full h-full bg-[rgb(0,0,0,0.75)] z-50 left-0 top-0 ${open ? 'visible opacity-100' : 'invisible opacity-0 pointer-events-none'} transition-all`}>
         <div className={`w-[500px] bg-slate-500 rounded-lg p-2 transition-opacity${loading ? ' opacity-50 pointer-events-none' : ''}`}>
             <div className="text-white text-center font-bold text-base p-2 pt-0 mb-2">Nova Coleção</div>
             <div className="text-red-800 text-xs mb-2">{message}</div>
+            <div className="mt-2">
+                <input 
+                    className="bg-slate-200 w-full p-1.5 text-sm rounded-md" 
+                    value={question} 
+                    onChange={(e) => setQuestion(e.currentTarget.value)}
+                    type="text"
+                    placeholder="Digite uma pergunta para a imagem"
+                />
+            </div>
             <div className="mt-2">
                 <input 
                     className="bg-slate-200 w-full p-1.5 text-sm rounded-md" 
@@ -127,7 +157,7 @@ function NewImage({open, reload, close, collection}: {open: boolean; reload: () 
                         
                         const buffer = await file?.item(0)?.arrayBuffer()
                         if(buffer){
-                            const result = await newImageFile(collection, buffer)
+                            const result = await newImageFile(collection, buffer, question)
 
                             setLoading(false)
                             if (result.success) {
@@ -135,6 +165,7 @@ function NewImage({open, reload, close, collection}: {open: boolean; reload: () 
                                 reload()
                                 setValue('')
                                 setFile(null)
+                                setQuestion('')
                             } else {
                                 setMessage(result.message as string)
                             }

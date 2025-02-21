@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react"
 interface Item {
     id: number;
     identifier: string;
+    question: string;
     count?: boolean;
 }
 
@@ -46,6 +47,7 @@ export default function Test() {
 
     useEffect(() => {
         Items(parseInt(collection as string)).then((r) => next(r, true))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [collection])
 
     const correct = useCallback((text: string) => {
@@ -63,17 +65,20 @@ export default function Test() {
                 if (typeof currentItem?.count === 'undefined') setMiss((i) => i+1)
             }
         })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentItem])
     
     return !finished 
     ? currentItem && <div className="m-auto mt-5 w-[800px] max-w-[95%] border bg-slate-400 p-4 rounded-lg">
-        <div className="flex mb-2">
+        <div className="flex mb-5 text-sm text-slate-600">
             <div className="flex-1"><b>Restantes</b>: {items.length}</div>
             <div className="flex-1"><b>Acertos</b>: {hit}</div>
             <div className="flex-1"><b>Erros</b>: {miss}</div>
             <div className="flex-1"><b>Tempo</b>: <Time updateFinalTime={updateFinalTime} /></div>
         </div>
+        <div className="mb-2 text-base font-semibold text-center text-gray-900">{currentItem.question}</div>
         <div className="flex justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={`/api/images/${collection}/${currentItem.identifier}`} alt="Item image" />
         </div>
         <div className={`mt-3 mb-3 font-medium text-center ${success ? 'text-green-700' : 'text-red-700'}`}>{message}</div>

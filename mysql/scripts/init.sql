@@ -84,6 +84,7 @@ DROP TABLE IF EXISTS `CollectionImages`;
 CREATE TABLE `CollectionImages` (
   `ImageId` int NOT NULL AUTO_INCREMENT,
   `ImageCollection` int NOT NULL,
+  `ImageQuestion` varchar(500) DEFAULT '',
   `ImageAnswers` int NOT NULL DEFAULT '0',
   `ImageIdentifier` varchar(120) NOT NULL,
   `ImageDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

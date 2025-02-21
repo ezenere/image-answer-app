@@ -9,6 +9,7 @@ services:
     command: server /data
     ports:
       - "9001:9001"
+      - "9000:9000"
     volumes:
       - ./minio/minio_data:/data
   
@@ -16,22 +17,24 @@ services:
     image: mysql:8.0
     container_name: mysql_database
     restart: always
+    ports:
+      - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: "123456789"
     volumes:
       - ./mysql/mysql_data:/var/lib/mysql
       - ./mysql/scripts:/docker-entrypoint-initdb.d
 
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: anatomy_app
-    ports:
-      - "3000:3000"
-    depends_on:
-      - minio
-      - mysql
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: anatomy_app
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - minio
+  #     - mysql
 
 volumes:
   minio_data:

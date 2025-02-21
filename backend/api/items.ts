@@ -5,13 +5,13 @@ import { mysqlConn } from "../database/mysql"
 import { minioClient } from "../storage/minio";
 import { toSHA256 } from "@/commons/crypto";
 
-export interface Item { id: number; identifier: string }
-export interface FullItem { id: number; identifier: string; answers: Array<{id: number; text: string}> }
+export interface Item { id: number; identifier: string; question: string }
+export interface FullItem { id: number; identifier: string; question: string; answers: Array<{id: number; text: string}> }
 
 export async function Items(collectionId: number): Promise<Item[]> {
     const conn = await mysqlConn()
 
-    const [result] = await conn.query('SELECT ImageId id, ImageIdentifier identifier FROM Anatomy.CollectionImages WHERE ImageCollection = ? AND ImageAnswers > 0;', [collectionId])
+    const [result] = await conn.query('SELECT ImageId id, ImageIdentifier identifier, ImageQuestion question FROM Anatomy.CollectionImages WHERE ImageCollection = ? AND ImageAnswers > 0;', [collectionId])
 
     return result as Item[]
 }
@@ -19,7 +19,7 @@ export async function Items(collectionId: number): Promise<Item[]> {
 export async function FullItems(collectionId: number): Promise<FullItem[]> {
     const conn = await mysqlConn()
 
-    const [result] = await conn.query<RowDataPacket[]>(`SELECT ImageId id, ImageIdentifier identifier, (SELECT json_arrayagg(json_object('id', AnswerId, 'text', AnswerText)) FROM Anatomy.Answers WHERE AnswerImage = ImageId) answers FROM Anatomy.CollectionImages WHERE ImageCollection = ? ORDER BY ImageId DESC;`, [collectionId]);
+    const [result] = await conn.query<RowDataPacket[]>(`SELECT ImageId id, ImageIdentifier identifier, ImageQuestion question, (SELECT json_arrayagg(json_object('id', AnswerId, 'text', AnswerText)) FROM Anatomy.Answers WHERE AnswerImage = ImageId) answers FROM Anatomy.CollectionImages WHERE ImageCollection = ? ORDER BY ImageId DESC;`, [collectionId]);
 
     return result as FullItem[]
 }
@@ -75,7 +75,7 @@ export async function removeAnswer(id: number) {
     } 
 }
 
-export async function newImageFile(collection: number, buffer: ArrayBuffer) {
+export async function newImageFile(collection: number, buffer: ArrayBuffer, question: string) {
     const bucket = 'collection'+collection;
 
     const minio = await minioClient()
@@ -96,12 +96,26 @@ export async function newImageFile(collection: number, buffer: ArrayBuffer) {
 
         const conn = await mysqlConn()
 
-        await conn.query('INSERT INTO `Anatomy`.`CollectionImages` (`ImageCollection`, `ImageIdentifier`) VALUES (?, ?);', [collection, key])
+        await conn.query('INSERT INTO `Anatomy`.`CollectionImages` (`ImageCollection`, `ImageIdentifier`, `ImageQuestion`) VALUES (?, ?, ?);', [collection, key, question])
 
         return {success: true, message: 'OK'}
     } catch(e) {
         console.log(e)
         
+        return {success: false, message: 'Erro do servidor'}
+    }
+}
+
+export async function updateQuestion(collection: number, image: number, question: string) {
+    try {
+        const conn = await mysqlConn()
+
+        await conn.query('UPDATE Anatomy.CollectionImages SET ImageQuestion = ? WHERE ImageCollection = ? AND ImageId = ?;', [question, collection, image])
+        
+        return {success: true, message: 'OK'}
+    } catch(e) {
+        console.log(e)
+
         return {success: false, message: 'Erro do servidor'}
     }
 }
